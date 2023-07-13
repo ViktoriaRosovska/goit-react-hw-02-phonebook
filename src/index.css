@@ -13,3 +13,31 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
+}
+
+svg:hover {
+  fill: #f26b94;
+}
+
+input {
+  outline: none;
+}
+input:focus,
+input:hover {
+  border: 2px solid #f26b94;
+}

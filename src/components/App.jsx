@@ -1,5 +1,50 @@
 import { Component } from 'react';
 import { nanoid } from 'nanoid';
+import { Notify, Confirm } from 'notiflix';
+import {
+  AddContactWrapper,
+  ContactsWrapper,
+  Container,
+  HeaderApp,
+  HeaderContacts,
+} from './App.styled';
+import { ContactForm } from './ContactForm/ContactForm';
+import { Filter } from './Filter/Filter';
+import { ContactList } from './ContactsList/ContactList';
+
+Notify.init({
+  width: 'fit-content',
+  padding: '20px',
+  position: 'center-top',
+  distance: '200px',
+  borderRadius: '15px',
+  fontSize: '25px',
+  textColor: 'black',
+  timeout: 1500,
+  useIcon: false,
+  closeButton: false,
+  warning: {
+    borderRadius: '15px',
+    heigth: '200px',
+    closeButton: false,
+    background: '#f26b94',
+    fontSize: '40px',
+    titleFontSize: '40px',
+    messageFontSize: '40px',
+    textColor: 'white',
+  },
+  info: {
+    background: 'transparent',
+    textColor: 'black',
+  },
+});
+
+Confirm.init({
+  background: '#f26b94',
+  heigth: '100px',
+  okButtonBackground: '#f26b94',
+  titleColor: '#f26b94',
+});
 
 export class App extends Component {
   state = {
@@ -11,45 +56,56 @@ export class App extends Component {
     ],
     name: '',
     number: '',
-    filter: '',
+    filter: [],
   };
 
   onFormSubmit(e) {
     e.preventDefault();
-    this.onStorageContact(e);
-    e.currentTarget.reset();
-  }
-  onStorageContact(e) {
     const userName = e.currentTarget.elements.name.value;
     const userNumber = e.currentTarget.elements.number.value;
+    this.setState(
+      {
+        name: userName,
+        number: userNumber,
+      },
+      () => this.onStorageContact()
+    );
+    e.currentTarget.reset();
+  }
 
-    if (this.state.contacts.find(user => user.name === userName)) {
-      return alert(`${userName} is already in contacts`);
+  onStorageContact() {
+    if (this.state.contacts.find(user => user.name === this.state.name)) {
+      return Notify.warning(`${this.state.name} is already in contacts`);
     }
-    if (this.state.contacts.find(user => user.number === userNumber)) {
-      return alert(`This number: ${userNumber} is already in contacts`);
+    if (this.state.contacts.find(user => user.number === this.state.number)) {
+      return Notify.warning(
+        `This number: ${this.state.number} is already in contacts`
+      );
     }
     const user = {
-      name: userName,
-      number: userNumber,
+      name: this.state.name,
+      number: this.state.number,
       id: nanoid(),
     };
-    console.log(user);
 
-    return this.setState(prevState => ({
+    this.setState(prevState => ({
       contacts: [...prevState.contacts, user],
     }));
   }
-  onFindContact(e) {
-    console.log(this.state);
-    const userFilter = e.target.value.toLowerCase();
 
+  onFindContact(e) {
+    const userFilter = e.target.value.toLowerCase();
+    this.setState({ userFilter: userFilter }, () => this.filterContacts());
+  }
+
+  filterContacts() {
     return this.setState(prevState => ({
       filter: prevState.contacts.filter(
-        el => el.name.toLowerCase().indexOf(userFilter) !== -1
+        el => el.name.toLowerCase().indexOf(prevState.userFilter) !== -1
       ),
     }));
   }
+
   onSortContactsAZ() {
     return this.setState(prevState => ({
       contacts: prevState.contacts.sort((a, b) => {
@@ -57,6 +113,7 @@ export class App extends Component {
       }),
     }));
   }
+
   onSortContactsZA() {
     return this.setState(prevState => ({
       contacts: prevState.contacts.sort((a, b) => {
@@ -64,109 +121,49 @@ export class App extends Component {
       }),
     }));
   }
+
   onDeleteContact(userId) {
-    console.log(userId);
     const deletedUser = this.state.contacts.find(user => user.id === userId);
-    console.log(deletedUser);
-    let del = window.confirm(
-      `Are you sure you want to delete contact ${deletedUser.name}`
+
+    Confirm.show(
+      `Delete contact`,
+      `Are you sure you want to delete contact ${deletedUser.name}?`,
+      'Yes',
+      'No',
+      () => {
+        Notify.info(`Contact ${deletedUser.name} was deleted`);
+        return this.setState(
+          prevState => ({
+            contacts: prevState.contacts.filter(user => user.id !== userId),
+          }),
+          () => this.filterContacts()
+        );
+      },
+      () => {
+        return;
+      }
     );
-    if (del) {
-      alert(`Contat ${deletedUser.name} was deleting`);
-    } else {
-      return;
-    }
-    return this.setState(prevState => ({
-      contacts: prevState.contacts.filter(user => user.id !== userId),
-    }));
   }
+
   render() {
     return (
-      <div>
-        <>
-          <h2>Phonebook</h2>
-          <form
-            onSubmit={e => {
-              this.onFormSubmit(e);
-            }}
-          >
-            <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              name="name"
-              pattern="^[a-zA-Zа-яА-Я]+(([' \-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-              title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-              required
-            />
-            <label htmlFor="phone">Number</label>
-            <input
-              type="tel"
-              name="number"
-              title="Enter phone number"
-              required
-            />
-            <button type="submit">Add contact</button>
-          </form>
-          <label htmlFor="filter">Find contact</label>
-          <input
-            type="text"
-            name="filter"
-            title="Find phonebook contact"
-            onChange={e => this.onFindContact(e)}
+      <Container>
+        <AddContactWrapper>
+          <HeaderApp>Phonebook</HeaderApp>
+          <ContactForm onFormSubmit={e => this.onFormSubmit(e)} />
+        </AddContactWrapper>
+        <ContactsWrapper>
+          <Filter onFindContact={e => this.onFindContact(e)} />
+          <HeaderContacts>Contacts</HeaderContacts>
+          <ContactList
+            contacts={this.state.contacts}
+            filter={this.state.filter}
+            onSortContactsAZ={() => this.onSortContactsAZ()}
+            onSortContactsZA={() => this.onSortContactsZA()}
+            onDeleteContact={id => this.onDeleteContact(id)}
           />
-          <h2>Contacts</h2>
-          {this.state.contacts.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  this.onSortContactsAZ();
-                }}
-              >
-                A-Z
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  this.onSortContactsZA();
-                }}
-              >
-                Z-A
-              </button>
-            </>
-          )}
-
-          {Boolean(this.state.filter.length) && (
-            <ul>
-              {this.state.filter.map((u, idx) => (
-                <li key={idx}>
-                  {u.name} {u.number}
-                </li>
-              ))}
-            </ul>
-          )}
-          {!Boolean(this.state.filter.length) && (
-            <ul>
-              {this.state.contacts.map(u => (
-                <li key={u.id}>
-                  {u.name} {u.number}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      this.onDeleteContact(u.id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          {!Boolean(this.state.contacts.length) && (
-            <p>There are no contacts in your phonebook</p>
-          )}
-        </>
-      </div>
+        </ContactsWrapper>
+      </Container>
     );
   }
 }
