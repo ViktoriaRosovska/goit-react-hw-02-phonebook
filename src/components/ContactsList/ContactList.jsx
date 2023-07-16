@@ -52,15 +52,15 @@ export function ContactList({
   );
 }
 
-// ContactList.propTypes = {
-//   contacts: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       id: PropTypes.string.isRequired,
-//       name: PropTypes.string.isRequired,
-//       number: PropTypes.string.isRequired,
-//     }).isRequired
-//   ),
-//   filter: PropTypes.arrayOf(PropTypes.shape().isRequired),
-//   onSortContacts: PropTypes.func.isRequired,
-//   onDeleteContact: PropTypes.func.isRequired,
-// };
+ContactList.propTypes = {
+  contactList: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    }).isRequired
+  ),
+  onSortContacts: PropTypes.func.isRequired,
+  onDeleteContact: PropTypes.func.isRequired,
+  hasContacts: PropTypes.bool.isRequired,
+};

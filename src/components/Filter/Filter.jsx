@@ -21,4 +21,5 @@ export function Filter({ onFilterContact, filter }) {
 
 Filter.propTypes = {
   onFilterContact: PropTypes.func.isRequired,
+  filter: PropTypes.string.isRequired,
 };

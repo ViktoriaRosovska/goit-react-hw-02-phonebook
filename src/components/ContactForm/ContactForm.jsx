@@ -48,4 +48,6 @@ export class ContactForm extends Component {
   }
 }
 
-ContactForm.propTypes = {};
+ContactForm.propTypes = {
+  onStorageContact: PropTypes.func.isRequired,
+};
