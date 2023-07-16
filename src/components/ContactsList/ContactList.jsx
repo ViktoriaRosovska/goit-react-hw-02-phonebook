@@ -13,77 +13,54 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 export function ContactList({
-  contacts,
-  filter,
-  onSortContactsAZ,
-  onSortContactsZA,
+  contactList,
+  hasContacts,
+  onSortContacts,
   onDeleteContact,
 }) {
   return (
     <ContactsListContainer>
       <SortOptions>
         <span>Sort contacts by:</span>
-        <Button type="button" onClick={onSortContactsAZ}>
+        <Button type="button" onClick={() => onSortContacts('az')}>
           <SvgIcon component={KeyboardArrowDownIcon}></SvgIcon>
         </Button>
-        <Button type="button" onClick={onSortContactsZA}>
+        <Button type="button" onClick={() => onSortContacts('za')}>
           <SvgIcon component={KeyboardArrowUpIcon}></SvgIcon>
         </Button>
       </SortOptions>
 
       <ContactListRender>
-        {Boolean(filter.length) && (
-          <ul>
-            {filter.map((contact, idx) => (
-              <List key={idx}>
-                <Span>{contact.name}</Span>
-                <span>{contact.number}</span>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    onDeleteContact(contact.id);
-                  }}
-                >
-                  <SvgIcon component={DeleteForeverIcon}></SvgIcon>
-                </Button>
-              </List>
-            ))}
-          </ul>
-        )}
-
-        {!Boolean(filter.length) && (
-          <ul>
-            {contacts.map(contact => (
-              <List key={contact.id}>
-                <Span>{contact.name}</Span> <span>{contact.number}</span>
-                <Button
-                  type="button"
-                  onClick={() => onDeleteContact(contact.id)}
-                >
-                  <SvgIcon component={DeleteForeverIcon}></SvgIcon>
-                </Button>
-              </List>
-            ))}
-          </ul>
-        )}
-        {!Boolean(contacts.length) && (
+        <ul>
+          {contactList.map(contact => (
+            <List key={contact.id}>
+              <Span>{contact.name}</Span> <Span>{contact.number}</Span>
+              <Button type="button" onClick={() => onDeleteContact(contact.id)}>
+                <SvgIcon component={DeleteForeverIcon}></SvgIcon>
+              </Button>
+            </List>
+          ))}
+        </ul>
+        {!Boolean(contactList.length) && !hasContacts && (
           <p>There are no contacts in your phonebook</p>
+        )}
+        {!Boolean(contactList.length) && hasContacts && (
+          <p>No contacts found</p>
         )}
       </ContactListRender>
     </ContactsListContainer>
   );
 }
 
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    }).isRequired
-  ),
-  filter: PropTypes.arrayOf(PropTypes.shape().isRequired),
-  onSortContactsAZ: PropTypes.func.isRequired,
-  onSortContactsZA: PropTypes.func.isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
-};
+// ContactList.propTypes = {
+//   contacts: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       id: PropTypes.string.isRequired,
+//       name: PropTypes.string.isRequired,
+//       number: PropTypes.string.isRequired,
+//     }).isRequired
+//   ),
+//   filter: PropTypes.arrayOf(PropTypes.shape().isRequired),
+//   onSortContacts: PropTypes.func.isRequired,
+//   onDeleteContact: PropTypes.func.isRequired,
+// };

@@ -15,6 +15,10 @@ const Container = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  -moz-box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
+    rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
+  -webkit-box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
+    rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
   box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
     rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
 `;

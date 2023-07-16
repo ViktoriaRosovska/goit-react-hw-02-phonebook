@@ -1,6 +1,8 @@
 import { Component } from 'react';
+
+import * as services from 'services/notify';
 import { nanoid } from 'nanoid';
-import { Notify, Confirm } from 'notiflix';
+
 import {
   AddContactWrapper,
   ContactsWrapper,
@@ -12,40 +14,6 @@ import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactsList/ContactList';
 
-Notify.init({
-  width: 'fit-content',
-  padding: '20px',
-  position: 'center-top',
-  distance: '200px',
-  borderRadius: '15px',
-  fontSize: '25px',
-  textColor: 'black',
-  timeout: 1500,
-  useIcon: false,
-  closeButton: false,
-  warning: {
-    borderRadius: '15px',
-    heigth: '200px',
-    closeButton: false,
-    background: '#f26b94',
-    fontSize: '40px',
-    titleFontSize: '40px',
-    messageFontSize: '40px',
-    textColor: 'white',
-  },
-  info: {
-    background: 'transparent',
-    textColor: 'black',
-  },
-});
-
-Confirm.init({
-  background: '#f26b94',
-  heigth: '100px',
-  okButtonBackground: '#f26b94',
-  titleColor: '#f26b94',
-});
-
 export class App extends Component {
   state = {
     contacts: [
@@ -54,113 +22,98 @@ export class App extends Component {
       { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
-    name: '',
-    number: '',
-    filter: [],
+    filteredContacts: [],
+    filter: '',
+    order: 'az',
   };
 
-  onFormSubmit(e) {
-    e.preventDefault();
-    const userName = e.currentTarget.elements.name.value;
-    const userNumber = e.currentTarget.elements.number.value;
-    this.setState(
-      {
-        name: userName,
-        number: userNumber,
-      },
-      () => this.onStorageContact()
-    );
-    e.currentTarget.reset();
-  }
-
-  onStorageContact() {
-    if (this.state.contacts.find(user => user.name === this.state.name)) {
-      return Notify.warning(`${this.state.name} is already in contacts`);
+  onStorageContact = (contactName, contactNumber) => {
+    if (this.state.contacts.find(user => user.name === contactName)) {
+      return services.Notify.warning(`${contactName} is already in contacts`);
     }
-    if (this.state.contacts.find(user => user.number === this.state.number)) {
-      return Notify.warning(
-        `This number: ${this.state.number} is already in contacts`
+    if (this.state.contacts.find(user => user.number === contactNumber)) {
+      return services.Notify.warning(
+        `This number: ${contactNumber} is already in contacts`
       );
     }
     const user = {
-      name: this.state.name,
-      number: this.state.number,
+      name: contactName,
+      number: contactNumber,
       id: nanoid(),
     };
 
     this.setState(prevState => ({
       contacts: [...prevState.contacts, user],
+      filter: '',
     }));
-  }
+  };
 
-  onFindContact(e) {
-    const userFilter = e.target.value.toLowerCase();
-    this.setState({ userFilter: userFilter }, () => this.filterContacts());
-  }
+  onFilterContact = e => {
+    const filter = e.target.value.toLowerCase();
+    this.setState({ filter });
+  };
 
-  filterContacts() {
-    return this.setState(prevState => ({
-      filter: prevState.contacts.filter(
-        el => el.name.toLowerCase().indexOf(prevState.userFilter) !== -1
-      ),
+  getFilteredContacts = () => {
+    const { contacts, filter, order } = this.state;
+    let filtered = contacts;
+    if (filter)
+      filtered = filtered.filter(
+        el => el.name.toLowerCase().indexOf(filter) !== -1
+      );
+    if (order === 'az') {
+      return (filtered = filtered.sort((a, b) => a.name.localeCompare(b.name)));
+    } else if (order === 'za') {
+      return (filtered = filtered.sort((a, b) => b.name.localeCompare(a.name)));
+    }
+
+    return filtered;
+  };
+
+  updateFilteredContacts = () => {
+    this.setState(prevState => ({
+      filteredContacts: this.getFilteredContacts(prevState),
     }));
-  }
+  };
 
-  onSortContactsAZ() {
-    return this.setState(prevState => ({
-      contacts: prevState.contacts.sort((a, b) => {
-        return a.name.localeCompare(b.name);
-      }),
-    }));
-  }
+  onSortContacts = order => {
+    this.setState({ order });
+  };
 
-  onSortContactsZA() {
-    return this.setState(prevState => ({
-      contacts: prevState.contacts.sort((a, b) => {
-        return b.name.localeCompare(a.name);
-      }),
-    }));
-  }
-
-  onDeleteContact(userId) {
+  onDeleteContact = userId => {
     const deletedUser = this.state.contacts.find(user => user.id === userId);
 
-    Confirm.show(
+    services.Confirm.show(
       `Delete contact`,
       `Are you sure you want to delete contact ${deletedUser.name}?`,
       'Yes',
       'No',
       () => {
-        Notify.info(`Contact ${deletedUser.name} was deleted`);
-        return this.setState(
-          prevState => ({
-            contacts: prevState.contacts.filter(user => user.id !== userId),
-          }),
-          () => this.filterContacts()
-        );
-      },
-      () => {
-        return;
+        services.Notify.info(`Contact ${deletedUser.name} was deleted`);
+        return this.setState(prevState => ({
+          contacts: prevState.contacts.filter(user => user.id !== userId),
+        }));
       }
     );
-  }
+  };
 
   render() {
     return (
       <Container>
         <AddContactWrapper>
           <HeaderApp>Phonebook</HeaderApp>
-          <ContactForm onFormSubmit={e => this.onFormSubmit(e)} />
+          <ContactForm onStorageContact={this.onStorageContact} />
         </AddContactWrapper>
         <ContactsWrapper>
-          <Filter onFindContact={e => this.onFindContact(e)} />
+          <Filter
+            onFilterContact={this.onFilterContact}
+            filter={this.state.filter}
+          />
           <HeaderContacts>Contacts</HeaderContacts>
           <ContactList
-            contacts={this.state.contacts}
-            filter={this.state.filter}
-            onSortContactsAZ={() => this.onSortContactsAZ()}
-            onSortContactsZA={() => this.onSortContactsZA()}
-            onDeleteContact={id => this.onDeleteContact(id)}
+            contactList={this.getFilteredContacts()}
+            onSortContacts={this.onSortContacts}
+            onDeleteContact={this.onDeleteContact}
+            hasContacts={this.state.contacts.length > 0}
           />
         </ContactsWrapper>
       </Container>

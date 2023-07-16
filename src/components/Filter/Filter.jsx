@@ -4,7 +4,7 @@ import {
   FindLabel,
   FindWrapper,
 } from 'components/ContactForm/ContactForm.styled';
-export function Filter({ onFindContact }) {
+export function Filter({ onFilterContact, filter }) {
   return (
     <FindWrapper>
       <FindLabel htmlFor="filter">Find contact</FindLabel>
@@ -12,13 +12,13 @@ export function Filter({ onFindContact }) {
         type="text"
         name="filter"
         title="Find phonebook contact"
-        onChange={onFindContact}
-        onBlur={e => (e.currentTarget.value = '')}
+        value={filter}
+        onChange={onFilterContact}
       />
     </FindWrapper>
   );
 }
 
 Filter.propTypes = {
-  onFindContact: PropTypes.func.isRequired,
+  onFilterContact: PropTypes.func.isRequired,
 };

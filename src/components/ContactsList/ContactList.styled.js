@@ -9,7 +9,8 @@ const ContactsListContainer = styled.div`
 `;
 
 const ContactListRender = styled.div`
-  width: 310px;
+  box-sizing: border-box;
+  width: 330px;
   padding-left: 20px;
   padding-right: 20px;
   margin-top: 10px;
@@ -18,6 +19,16 @@ const ContactListRender = styled.div`
   overflow: auto;
   border-radius: 10px;
   scrollbar-color: pink;
+
+  &::-moz-scrollbar {
+    background-color: transparent;
+    width: 10px;
+  }
+
+  &::-moz-scrollbar-thumb {
+    background-color: pink;
+    border-radius: 10px;
+  }
   &::-webkit-scrollbar {
     background-color: transparent;
     width: 10px;
@@ -43,8 +54,13 @@ const Button = styled.button`
 `;
 
 const SortOptions = styled.div`
+  -webkit-box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
+    rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
+  -moz-box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
+    rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
   box-shadow: rgba(50, 50, 93, 0.25) -10px -5px 0px -10px,
     rgba(0, 0, 0, 0.3) 2px 4px 5px -2px;
+
   padding-left: 20px;
   padding-right: 20px;
   padding-top: 15px;
@@ -59,10 +75,12 @@ const List = styled.li`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 300px;
 `;
 
 const Span = styled.span`
-  margin-right: 20px;
+  margin-right: 10px;
+  width: 130px;
 `;
 export {
   ContactsListContainer,
