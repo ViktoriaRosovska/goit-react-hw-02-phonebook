@@ -22,7 +22,6 @@ export class App extends Component {
       { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
-    filteredContacts: [],
     filter: '',
     order: 'az',
   };
@@ -55,42 +54,34 @@ export class App extends Component {
 
   getFilteredContacts = () => {
     const { contacts, filter, order } = this.state;
-    let filtered = contacts;
-    if (filter)
-      filtered = filtered.filter(
-        el => el.name.toLowerCase().indexOf(filter) !== -1
-      );
+    const filtered = contacts.filter(el =>
+      el.name.toLowerCase().includes(filter)
+    );
     if (order === 'az') {
-      return (filtered = filtered.sort((a, b) => a.name.localeCompare(b.name)));
+      return filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (order === 'za') {
-      return (filtered = filtered.sort((a, b) => b.name.localeCompare(a.name)));
+      return filtered.sort((a, b) => b.name.localeCompare(a.name));
     }
 
     return filtered;
-  };
-
-  updateFilteredContacts = () => {
-    this.setState(prevState => ({
-      filteredContacts: this.getFilteredContacts(prevState),
-    }));
   };
 
   onSortContacts = order => {
     this.setState({ order });
   };
 
-  onDeleteContact = userId => {
-    const deletedUser = this.state.contacts.find(user => user.id === userId);
-
+  onDeleteContact = user => {
     services.Confirm.show(
       `Delete contact`,
-      `Are you sure you want to delete contact ${deletedUser.name}?`,
+      `Are you sure you want to delete contact ${user.name}?`,
       'Yes',
       'No',
       () => {
-        services.Notify.info(`Contact ${deletedUser.name} was deleted`);
+        services.Notify.info(`Contact ${user.name} was deleted`);
         return this.setState(prevState => ({
-          contacts: prevState.contacts.filter(user => user.id !== userId),
+          contacts: prevState.contacts.filter(
+            contact => contact.id !== user.id
+          ),
         }));
       }
     );

@@ -8,7 +8,6 @@ const Container = styled.div`
   padding: 20px;
   display: flex;
   width: 700px;
-
   align-items: flex-end;
   gap: 20px;
   position: absolute;

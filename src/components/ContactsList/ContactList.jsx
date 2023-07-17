@@ -35,7 +35,7 @@ export function ContactList({
           {contactList.map(contact => (
             <List key={contact.id}>
               <Span>{contact.name}</Span> <Span>{contact.number}</Span>
-              <Button type="button" onClick={() => onDeleteContact(contact.id)}>
+              <Button type="button" onClick={() => onDeleteContact(contact)}>
                 <SvgIcon component={DeleteForeverIcon}></SvgIcon>
               </Button>
             </List>
